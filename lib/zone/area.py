@@ -7,8 +7,10 @@
 from lib.zone.district import *
 from lib.const.xpath import *
 from lib.request.headers import *
+from lib.spider.base_spider import *
 from lib.spider.base_spider import SPIDER_NAME
 
+from lib.comm_if.person_selenium import *
 
 def get_district_url(city, district):
     """
@@ -30,9 +32,15 @@ def get_areas(city, district):
     page = get_district_url(city, district)
     areas = list()
     try:
-        headers = create_headers()
-        response = requests.get(page, timeout=10, headers=headers)
-        html = response.content
+        html = ''
+        BaseSpider.random_delay()
+        if not BaseSpider.is_selenium():
+            headers = create_headers()
+            response = requests.get(gage, timeout=10, headers=headers)
+            html = response.content
+        else:
+            html = get_data_by_selenium(page)
+
         root = etree.HTML(html)
         links = root.xpath(DISTRICT_AREA_XPATH)
 

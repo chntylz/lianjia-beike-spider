@@ -54,9 +54,15 @@ class XiaoQuBaseSpider(BaseSpider):
         print(page)
         logger.info(page)
 
-        headers = create_headers()
-        response = requests.get(page, timeout=10, headers=headers)
-        html = response.content
+        BaseSpider.random_delay()
+        html = ''
+        if not BaseSpider.is_selenium():
+            headers = create_headers()
+            response = requests.get(page, timeout=10, headers=headers)
+            html = response.content
+        else:
+            html = get_data_by_selenium(page)
+
         soup = BeautifulSoup(html, "lxml")
 
         # 获得总的页数
@@ -70,12 +76,20 @@ class XiaoQuBaseSpider(BaseSpider):
 
         # 从第一页开始,一直遍历到最后一页
         for i in range(1, total_page + 1):
-            headers = create_headers()
             page = 'http://{0}.{1}.com/xiaoqu/{2}/pg{3}'.format(city, SPIDER_NAME, area, i)
             print(page)  # 打印版块页面地址
             BaseSpider.random_delay()
-            response = requests.get(page, timeout=10, headers=headers)
-            html = response.content
+            html = ''
+            if not BaseSpider.is_selenium():
+                headers = create_headers()
+                response = requests.get(page, timeout=10, headers=headers)
+                html = response.content
+            else:
+                html = get_data_by_selenium(page)
+
+            print('####################################################')
+            print(html)
+            print('####################################################')
             soup = BeautifulSoup(html, "lxml")
 
             # 获得有小区信息的panel
@@ -92,6 +106,8 @@ class XiaoQuBaseSpider(BaseSpider):
 
                 # 作为对象保存
                 xiaoqu = XiaoQu(chinese_district, chinese_area, name, price, on_sale)
+                print('Aaron')
+                print(chinese_district, chinese_area, name, price, on_sale)
                 xiaoqu_list.append(xiaoqu)
         return xiaoqu_list
 

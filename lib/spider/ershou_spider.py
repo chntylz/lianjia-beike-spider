@@ -16,6 +16,8 @@ from lib.zone.area import *
 from lib.utility.log import *
 import lib.utility.version
 
+from lib.comm_if.person_selenium import *
+
 
 class ErShouSpider(BaseSpider):
     def collect_area_ershou_data(self, city_name, area_name, fmt="csv"):
@@ -39,7 +41,7 @@ class ErShouSpider(BaseSpider):
                 self.mutex.release()
             if fmt == "csv":
                 for ershou in ershous:
-                    # print(date_string + "," + xiaoqu.text())
+                    print(self.date_string + "," + ershou.text())
                     f.write(self.date_string + "," + ershou.text() + "\n")
         print("Finish crawl area: " + area_name + ", save data to : " + csv_file)
 
@@ -61,9 +63,15 @@ class ErShouSpider(BaseSpider):
         ershou_list = list()
         page = 'http://{0}.{1}.com/ershoufang/{2}/'.format(city_name, SPIDER_NAME, area_name)
         print(page)  # 打印版块页面地址
-        headers = create_headers()
-        response = requests.get(page, timeout=10, headers=headers)
-        html = response.content
+        html=''
+        BaseSpider.random_delay()
+        if not BaseSpider.is_selenium():
+            headers = create_headers()
+            response = requests.get(page, timeout=10, headers=headers)
+            html = response.content
+        else:
+            html = get_data_by_selenium(page)
+
         soup = BeautifulSoup(html, "lxml")
 
         # 获得总的页数，通过查找总页码的元素信息
@@ -79,10 +87,18 @@ class ErShouSpider(BaseSpider):
         for num in range(1, total_page + 1):
             page = 'http://{0}.{1}.com/ershoufang/{2}/pg{3}'.format(city_name, SPIDER_NAME, area_name, num)
             print(page)  # 打印每一页的地址
-            headers = create_headers()
+            html=''
             BaseSpider.random_delay()
-            response = requests.get(page, timeout=10, headers=headers)
-            html = response.content
+            if not BaseSpider.is_selenium():
+                headers = create_headers()
+                response = requests.get(page, timeout=10, headers=headers)
+                html = response.content
+            else:
+                html = get_data_by_selenium(page)
+
+            print('#########################################################')
+            print(html)
+            print('#########################################################')
             soup = BeautifulSoup(html, "lxml")
 
             # 获得有小区信息的panel
@@ -103,6 +119,8 @@ class ErShouSpider(BaseSpider):
 
                 # 作为对象保存
                 ershou = ErShou(chinese_district, chinese_area, name, price, desc, pic)
+                print('Aaron')
+                print(chinese_district, chinese_area, name, price, desc, pic)
                 ershou_list.append(ershou)
         return ershou_list
 
@@ -135,6 +153,8 @@ class ErShouSpider(BaseSpider):
         city_list = [city for i in range(len(areas))]
         args = zip(zip(city_list, areas), nones)
         # areas = areas[0: 1]   # For debugging
+
+        print('thread args:', nones, city_list, args)
 
         # 针对每个板块写一个文件,启动一个线程来操作
         pool_size = thread_pool_size
