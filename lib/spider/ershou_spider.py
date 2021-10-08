@@ -18,6 +18,7 @@ import lib.utility.version
 
 from lib.comm_if.person_selenium import *
 
+debug=0
 
 class ErShouSpider(BaseSpider):
     def collect_area_ershou_data(self, city_name, area_name, fmt="csv"):
@@ -96,9 +97,11 @@ class ErShouSpider(BaseSpider):
             else:
                 html = get_data_by_selenium(page)
 
-            print('#########################################################')
-            print(html)
-            print('#########################################################')
+            if debug:
+                print('#########################################################')
+                print(html)
+                print('#########################################################')
+
             soup = BeautifulSoup(html, "lxml")
 
             # 获得有小区信息的panel
@@ -119,8 +122,46 @@ class ErShouSpider(BaseSpider):
 
                 # 作为对象保存
                 ershou = ErShou(chinese_district, chinese_area, name, price, desc, pic)
-                print('Aaron')
-                print(chinese_district, chinese_area, name, price, desc, pic)
+                if debug:
+                    print(chinese_district, chinese_area, name, price, desc, pic)
+
+
+                #title info
+                title_info = house_elem.find('div', class_='title')
+                title_a = title_info.find('a')
+                title_name = title_a.text
+                title_href = title_a.get('href')
+                #title_href = 'https://sh.ke.com/ershoufang/107104514874.html'
+                house_id = int(title_href[title_href.find('ershoufang')+11: title_href.find('html')-1])
+
+
+                #positon_info
+                pos_info = house_elem.find('div', class_='positionInfo')
+                pos_a = pos_info.find('a')
+                pos_addr = pos_a.text
+                pos_href = pos_a.get('href')
+
+
+                #house info
+                house_info = house_elem.find('div', class_="houseInfo")
+                house_info = house_info.text.replace("\n", "").strip()
+                house_info = house_info.replace(' ', '')
+
+
+                #years_info
+                years_info = house_elem.find('div', class_="tag")
+                years_info = years_info.text.replace("\n", "")
+
+                #price_info
+                price_info = house_elem.find('div', class_="priceInfo")
+                price_info = price_info.text.replace("\n", "")
+                price_info = price_info.replace(",", "")
+                total_price = int(price_info[:price_info.find('万')])
+                avg_price = int(price_info[price_info.find('万')+1: price_info.find('元')])
+
+
+                print(title_name, title_href, house_id, pos_addr, pos_href, house_info, total_price, avg_price)
+
                 ershou_list.append(ershou)
         return ershou_list
 
@@ -145,8 +186,10 @@ class ErShouSpider(BaseSpider):
             # 使用一个字典来存储区县和板块的对应关系, 例如{'beicai': 'pudongxinqu', }
             for area in areas_of_district:
                 area_dict[area] = district
-        print("Area:", areas)
-        print("District and areas:", area_dict)
+
+        if debug:
+            print("Area:", areas)
+            print("District and areas:", area_dict)
 
         # 准备线程池用到的参数
         nones = [None for i in range(len(areas))]
@@ -154,7 +197,8 @@ class ErShouSpider(BaseSpider):
         args = zip(zip(city_list, areas), nones)
         # areas = areas[0: 1]   # For debugging
 
-        print('thread args:', nones, city_list, args)
+        if debug:
+            print('thread args:', nones, city_list, args)
 
         # 针对每个板块写一个文件,启动一个线程来操作
         pool_size = thread_pool_size

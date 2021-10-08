@@ -106,8 +106,8 @@ class XiaoQuBaseSpider(BaseSpider):
 
                 # 作为对象保存
                 xiaoqu = XiaoQu(chinese_district, chinese_area, name, price, on_sale)
-                print('Aaron')
-                print(chinese_district, chinese_area, name, price, on_sale)
+                if debug:
+                    print(chinese_district, chinese_area, name, price, on_sale)
                 xiaoqu_list.append(xiaoqu)
         return xiaoqu_list
 
