@@ -13,7 +13,7 @@ import random
 
 thread_pool_size = 50
 #aaron change to 10   
-thread_pool_size = 10 
+thread_pool_size = 15
 
 # 防止爬虫被禁，随机延迟设定
 # 如果不想delay，就设定False，
@@ -27,6 +27,7 @@ SPIDER_NAME = BEIKE_SPIDER
 
 IS_SELENIUM = True
 
+
 class BaseSpider(object):
  
     @staticmethod
@@ -39,7 +40,8 @@ class BaseSpider(object):
     @staticmethod
     def random_delay():
         if RANDOM_DELAY:
-            time.sleep(random.randint(0, 16))
+            #time.sleep(random.randint(0, 16))
+            time.sleep(random.randint(0, 10))
 
     def __init__(self, name):
         self.name = name

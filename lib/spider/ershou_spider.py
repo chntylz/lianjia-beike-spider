@@ -18,7 +18,12 @@ import lib.utility.version
 
 from lib.comm_if.person_selenium import *
 
+import pandas as pd
+
+
 debug=0
+
+call_times = 0
 
 class ErShouSpider(BaseSpider):
     def collect_area_ershou_data(self, city_name, area_name, fmt="csv"):
@@ -55,6 +60,10 @@ class ErShouSpider(BaseSpider):
         :return: 二手房数据列表
         """
         total_page = 1
+        list_tmp = []
+
+        global call_times 
+
         district_name = area_dict.get(area_name, "")
         # 中文区县
         chinese_district = get_chinese_district(district_name)
@@ -160,9 +169,23 @@ class ErShouSpider(BaseSpider):
                 avg_price = int(price_info[price_info.find('万')+1: price_info.find('元')])
 
 
-                print(title_name, title_href, house_id, pos_addr, pos_href, house_info, total_price, avg_price)
+                print(call_times, title_name, title_href, house_id, pos_addr, pos_href, \
+                        house_info, total_price, avg_price)
+                list_tmp.append([title_name, title_href, house_id, pos_addr, pos_href, \
+                        house_info, total_price, avg_price])
 
                 ershou_list.append(ershou)
+                
+        dataframe_cols = ['title_name', 'title_href', 'house_id', 'pos_addr', 'pos_href', \
+                        'house_info', 'total_price', 'avg_price']
+        df = pd.DataFrame(list_tmp, columns=dataframe_cols)
+        if call_times:
+            df.to_csv('./house_info.csv', mode='a', encoding='gbk', header=False)
+        else:
+            df.to_csv('./house_info.csv', encoding='gbk')
+
+        call_times  = call_times  + 1
+        
         return ershou_list
 
     def start(self):
