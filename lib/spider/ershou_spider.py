@@ -169,14 +169,14 @@ class ErShouSpider(BaseSpider):
                 avg_price = int(price_info[price_info.find('万')+1: price_info.find('元')])
 
 
-                print(call_times, title_name, title_href, house_id, pos_addr, pos_href, \
+                print(call_times, chinese_district, chinese_area, title_name, title_href, house_id, pos_addr, pos_href, \
                         house_info, total_price, avg_price)
-                list_tmp.append([title_name, title_href, house_id, pos_addr, pos_href, \
+                list_tmp.append([chinese_district, chinese_area, title_name, title_href, house_id, pos_addr, pos_href, \
                         house_info, total_price, avg_price])
 
                 ershou_list.append(ershou)
                 
-        dataframe_cols = ['title_name', 'title_href', 'house_id', 'pos_addr', 'pos_href', \
+        dataframe_cols = ['district', 'area_part', 'title_name', 'title_href', 'house_id', 'pos_addr', 'pos_href', \
                         'house_info', 'total_price', 'avg_price']
         df = pd.DataFrame(list_tmp, columns=dataframe_cols)
         if call_times:
