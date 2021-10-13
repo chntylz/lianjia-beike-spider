@@ -37,9 +37,9 @@ class ErShouSpider(BaseSpider):
         """
         district_name = area_dict.get(area_name, "")
         csv_file = self.today_path + "/{0}_{1}.csv".format(district_name, area_name)
-        with open(csv_file, "w", encoding='gbk') as f:
+        with open(csv_file, "w", encoding='utf-8') as f:
             # 开始获得需要的板块数据
-            ershous = self.get_area_ershou_info(city_name, area_name)
+            ershous = self.get_area_ershou_info(self, city_name, area_name)
             # 锁定，多线程读写
             if self.mutex.acquire(1):
                 self.total_num += len(ershous)
@@ -52,7 +52,7 @@ class ErShouSpider(BaseSpider):
         print("Finish crawl area: " + area_name + ", save data to : " + csv_file)
 
     @staticmethod
-    def get_area_ershou_info(city_name, area_name):
+    def get_area_ershou_info(self, city_name, area_name):
         """
         通过爬取页面获得城市指定版块的二手房信息
         :param city_name: 城市
@@ -165,26 +165,32 @@ class ErShouSpider(BaseSpider):
                 price_info = house_elem.find('div', class_="priceInfo")
                 price_info = price_info.text.replace("\n", "")
                 price_info = price_info.replace(",", "")
-                total_price = int(price_info[:price_info.find('万')])
-                avg_price = int(price_info[price_info.find('万')+1: price_info.find('元')])
+                total_price = float(price_info[:price_info.find('万')])
+                avg_price = float(price_info[price_info.find('万')+1: price_info.find('元')])
 
 
-                print(call_times, chinese_district, chinese_area, title_name, title_href, house_id, pos_addr, pos_href, \
+                print(call_times, self.date_string,  chinese_district, chinese_area, title_name, title_href, house_id, pos_addr, pos_href, \
                         house_info, total_price, avg_price)
-                list_tmp.append([chinese_district, chinese_area, title_name, title_href, house_id, pos_addr, pos_href, \
+                list_tmp.append([self.date_string, chinese_district, chinese_area, title_name, title_href, house_id, pos_addr, pos_href, \
                         house_info, total_price, avg_price])
 
                 ershou_list.append(ershou)
                 
-        dataframe_cols = ['district', 'area_part', 'title_name', 'title_href', 'house_id', 'pos_addr', 'pos_href', \
+        dataframe_cols = ['record_date', 'district', 'area_part', 'title_name', 'title_href', 'house_id', 'pos_addr', 'pos_href', \
                         'house_info', 'total_price', 'avg_price']
         df = pd.DataFrame(list_tmp, columns=dataframe_cols)
+
+        df = df.drop_duplicates(subset=['record_date', 'house_id'], keep='first')
+
         if call_times:
-            df.to_csv('./house_info.csv', mode='a', encoding='gbk', header=False)
+            df.to_csv('./house_info.csv', mode='a', encoding='utf-8', header=False)
         else:
-            df.to_csv('./house_info.csv', encoding='gbk')
+            df.to_csv('./house_info.csv', encoding='utf-8')
 
         call_times  = call_times  + 1
+        
+        #save to database
+        self.hdata_day.copy_from_stringio(df)
         
         return ershou_list
 

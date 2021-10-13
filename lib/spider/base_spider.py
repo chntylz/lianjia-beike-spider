@@ -11,9 +11,13 @@ from lib.utility.date import *
 import lib.utility.version
 import random
 
+from lib.spider.HData_ke_day import *
+
+hdata_day = HData_ke_day('usr', 'usr')
+
 thread_pool_size = 50
 #aaron change to 10   
-thread_pool_size = 15
+thread_pool_size = 10
 
 # 防止爬虫被禁，随机延迟设定
 # 如果不想delay，就设定False，
@@ -41,7 +45,7 @@ class BaseSpider(object):
     def random_delay():
         if RANDOM_DELAY:
             #time.sleep(random.randint(0, 16))
-            time.sleep(random.randint(0, 10))
+            time.sleep(random.randint(0, 16))
 
     def __init__(self, name):
         self.name = name
@@ -58,6 +62,21 @@ class BaseSpider(object):
         self.total_num = 0  # 总的小区个数，用于统计
         print("Target site is {0}.com".format(SPIDER_NAME))
         self.mutex = threading.Lock()  # 创建锁
+
+        self.hdata_day = hdata_day
+
+        self.check_table()
+
+    def check_table(self):
+        table_exist = self.hdata_day.table_is_exist() 
+        print('table_exist=%d' % table_exist)
+        if table_exist:
+                #self.hdata_day.db_hdata_ke_create()
+                print('table already exist, recreate')
+        else:
+            self.hdata_day.db_hdata_ke_create()
+            print('table not exist, create')
+
 
     def create_prompt_text(self):
         """
