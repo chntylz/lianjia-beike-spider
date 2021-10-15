@@ -139,6 +139,7 @@ class ErShouSpider(BaseSpider):
                 title_info = house_elem.find('div', class_='title')
                 title_a = title_info.find('a')
                 title_name = title_a.text
+                title_name = title_name.replace(',', ' ')# for iostream to db
                 title_href = title_a.get('href')
                 #title_href = 'https://sh.ke.com/ershoufang/107104514874.html'
                 house_id = int(title_href[title_href.find('ershoufang')+11: title_href.find('html')-1])
@@ -148,6 +149,7 @@ class ErShouSpider(BaseSpider):
                 pos_info = house_elem.find('div', class_='positionInfo')
                 pos_a = pos_info.find('a')
                 pos_addr = pos_a.text
+                pos_addr = pos_addr.replace(',', ' ')# for iostream to db
                 pos_href = pos_a.get('href')
 
 
@@ -155,6 +157,7 @@ class ErShouSpider(BaseSpider):
                 house_info = house_elem.find('div', class_="houseInfo")
                 house_info = house_info.text.replace("\n", "").strip()
                 house_info = house_info.replace(' ', '')
+                house_info = house_info.replace(',', ' ')  # for iostream to db
 
 
                 #years_info
@@ -190,7 +193,11 @@ class ErShouSpider(BaseSpider):
         call_times  = call_times  + 1
         
         #save to database
-        self.hdata_day.copy_from_stringio(df)
+        try:
+            self.hdata_day.copy_from_stringio(df)
+        except Exception as e:
+            print('################################  ERROR  #################################')
+            print(df)
         
         return ershou_list
 
