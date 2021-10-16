@@ -73,6 +73,9 @@ class HData_ke_day(object):
                 pos_addr    varchar, 
                 pos_href    varchar, 
                 house_info  varchar, 
+                area        float,
+                room        float,
+                dining      float,
                 total_price float, 
                 avg_price   float
                );
@@ -100,7 +103,7 @@ class HData_ke_day(object):
             self.cur.copy_from(buffer, table='ke_d_table', sep=",")
             self.conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
-            print("Error: %s" % error)
+            print(" database Error: %s" % error)
             self.conn.rollback()
             self.db_disconnect()
             return 1

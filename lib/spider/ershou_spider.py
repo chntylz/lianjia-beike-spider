@@ -159,6 +159,13 @@ class ErShouSpider(BaseSpider):
                 house_info = house_info.replace(' ', '')
                 house_info = house_info.replace(',', ' ')  # for iostream to db
 
+                room = dining = area = 0
+                s = house_info
+                t1 = s[ :s.find('平米')]
+                area = float(t1[ t1.rfind('|') + 1:])
+                room = int(s[s.find('室') - 1 : s.find('室')])
+                dining = int(s[s.find('厅') - 1 : s.find('厅')])
+
 
                 #years_info
                 years_info = house_elem.find('div', class_="tag")
@@ -173,22 +180,22 @@ class ErShouSpider(BaseSpider):
 
 
                 print(call_times, self.date_string,  chinese_district, chinese_area, title_name, title_href, house_id, pos_addr, pos_href, \
-                        house_info, total_price, avg_price)
+                        house_info, area, room, dining, total_price, avg_price)
                 list_tmp.append([self.date_string, chinese_district, chinese_area, title_name, title_href, house_id, pos_addr, pos_href, \
-                        house_info, total_price, avg_price])
+                        house_info, area, room, dining,  total_price, avg_price])
 
                 ershou_list.append(ershou)
                 
         dataframe_cols = ['record_date', 'district', 'area_part', 'title_name', 'title_href', 'house_id', 'pos_addr', 'pos_href', \
-                        'house_info', 'total_price', 'avg_price']
+                        'house_info',  'area', 'room', 'dining', 'total_price', 'avg_price']
         df = pd.DataFrame(list_tmp, columns=dataframe_cols)
 
         df = df.drop_duplicates(subset=['record_date', 'house_id'], keep='first')
 
         if call_times:
-            df.to_csv('./house_info.csv', mode='a', encoding='utf-8', header=False)
+            df.to_csv('./house_info_' + self.date_string + '.csv', mode='a', encoding='utf-8', header=False)
         else:
-            df.to_csv('./house_info.csv', encoding='utf-8')
+            df.to_csv('./house_info_' + self.date_string + '.csv', encoding='utf-8')
 
         call_times  = call_times  + 1
         
