@@ -193,14 +193,15 @@ class ErShouSpider(BaseSpider):
         df = df.drop_duplicates(subset=['record_date', 'house_id'], keep='first')
 
         if call_times:
-            df.to_csv('./house_info_' + self.date_string + '.csv', mode='a', encoding='utf-8', header=False)
+            df.to_csv('./csv/house_info_' + self.date_string + '.csv', mode='a', encoding='utf-8', header=False)
         else:
-            df.to_csv('./house_info_' + self.date_string + '.csv', encoding='utf-8')
+            df.to_csv('./csv/house_info_' + self.date_string + '.csv', encoding='utf-8')
 
         call_times  = call_times  + 1
         
         #save to database
         try:
+            BaseSpider.random_delay()  #sleep before save data 
             self.hdata_day.copy_from_stringio(df)
         except Exception as e:
             print('################################  ERROR  #################################')

@@ -17,7 +17,7 @@ hdata_day = HData_ke_day('usr', 'usr')
 
 thread_pool_size = 50
 #aaron change to 10   
-thread_pool_size = 10
+thread_pool_size = 5
 
 # 防止爬虫被禁，随机延迟设定
 # 如果不想delay，就设定False，
