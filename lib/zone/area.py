@@ -34,12 +34,12 @@ def get_areas(city, district):
     try:
         html = ''
         BaseSpider.random_delay()
-        if not BaseSpider.is_selenium():
+        if BaseSpider.is_selenium():
+            html = get_data_by_selenium(page)
+        else:
             headers = create_headers()
             response = requests.get(gage, timeout=10, headers=headers)
             html = response.content
-        else:
-            html = get_data_by_selenium(page)
 
         root = etree.HTML(html)
         links = root.xpath(DISTRICT_AREA_XPATH)

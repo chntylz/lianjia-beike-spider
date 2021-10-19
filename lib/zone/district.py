@@ -36,12 +36,12 @@ def get_districts(city):
     url = 'https://{0}.{1}.com/xiaoqu/'.format(city, SPIDER_NAME)
     html = ''
     BaseSpider.random_delay()
-    if not BaseSpider.is_selenium():
+    if BaseSpider.is_selenium():
+        html = get_data_by_selenium(url)
+    else:
         headers = create_headers()
         response = requests.get(url, timeout=10, headers=headers)
         html = response.content
-    else:
-        html = get_data_by_selenium(url)
 
     root = etree.HTML(html)
     elements = root.xpath(CITY_DISTRICT_XPATH)

@@ -10,14 +10,23 @@ from bs4 import BeautifulSoup
 from lib.zone.city import cities
 import requests
 
+from lib.comm_if.person_selenium import *
+
 numbers = dict()
 
 
 def get_ershou_number(city):
     url = "https://{0}.{1}.com/ershoufang/".format(city, SPIDER_NAME)
     print(url)
-    response = requests.get(url)
-    html = response.content
+    
+    html = ''
+    BaseSpider.random_delay()
+    if BaseSpider.is_selenium():
+        html = get_data_by_selenium(page)
+    else:
+        response = requests.get(url)
+        html = response.content
+
     soup = BeautifulSoup(html, "lxml")
     element = soup.find('h2', class_='total')
     number = int(element.text.split(" ")[1].strip())

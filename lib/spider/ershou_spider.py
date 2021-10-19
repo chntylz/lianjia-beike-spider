@@ -75,12 +75,12 @@ class ErShouSpider(BaseSpider):
         print(page)  # 打印版块页面地址
         html=''
         BaseSpider.random_delay()
-        if not BaseSpider.is_selenium():
+        if BaseSpider.is_selenium():
+            html = get_data_by_selenium(page)
+        else:
             headers = create_headers()
             response = requests.get(page, timeout=10, headers=headers)
             html = response.content
-        else:
-            html = get_data_by_selenium(page)
 
         soup = BeautifulSoup(html, "lxml")
 
@@ -99,12 +99,12 @@ class ErShouSpider(BaseSpider):
             print(page)  # 打印每一页的地址
             html=''
             BaseSpider.random_delay()
-            if not BaseSpider.is_selenium():
+            if BaseSpider.is_selenium():
+                html = get_data_by_selenium(page)
+            else:
                 headers = create_headers()
                 response = requests.get(page, timeout=10, headers=headers)
                 html = response.content
-            else:
-                html = get_data_by_selenium(page)
 
             if debug:
                 print('#########################################################')
