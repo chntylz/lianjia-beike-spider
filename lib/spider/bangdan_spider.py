@@ -48,13 +48,13 @@ def get_bangdan(dist, url):
             #https://blog.csdn.net/weixin_41082042/article/details/79164046
         js="var q=document.documentElement.scrollTop=100000"  
         browser.execute_script(js)  
-        time.sleep(5)
+        browser.implicitly_wait(5)
         js="var q=document.documentElement.scrollTop=100000"  
         browser.execute_script(js)  
-        time.sleep(5)
+        browser.implicitly_wait(5)
         js="var q=document.documentElement.scrollTop=100000"  
         browser.execute_script(js)  
-        time.sleep(5)   
+        browser.implicitly_wait(5)
         html = browser.page_source
     except:
         browser.close()
